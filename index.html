@@ -406,7 +406,7 @@
     </button>
   </div>
 
-  <audio id="bgmAudio" src="music/bgm.mp3" loop preload="auto"></audio>
+  <audio id="bgmAudio" src="music/bgm.mp3" preload="auto"></audio>
   <audio id="sfxClick" src="sounds/button.mp3" preload="auto"></audio>
   <audio id="sfxWin" src="sounds/win.mp3" preload="auto"></audio>
   <audio id="sfxLose" src="sounds/lose.mp3" preload="auto"></audio>
@@ -418,16 +418,61 @@ const CN_NUMS=['','一','二','三','四','五','六'];
 function ordinalName(n){ return '第' + (CN_NUMS[n]||n) + '組'; }
 
 const bgmAudio = document.getElementById('bgmAudio');
-if(bgmAudio){ bgmAudio.loop = true; bgmAudio.volume = 0.6; }
+let bgmTargetVolume = 0.6;
+if(bgmAudio){ bgmAudio.loop = false; bgmAudio.volume = bgmTargetVolume; }
 let bgmStarted = false;
+
+// 平滑循環：不用 <audio loop> 直接跳回開頭，而是接近結尾時淡出、
+// 淡出完成後才從 0 秒重新播放，再淡入，避免循環時的突兀中斷感。
+const BGM_FADE_OUT_SEC = 3; // 結尾前幾秒開始淡出
+const BGM_FADE_IN_SEC = 3;  // 重新播放後的淡入秒數
+let bgmFadeState = 'idle';  // 'idle' | 'fading-out' | 'fading-in'
+let bgmFadeInStartTime = 0;
+let bgmLoopRafId = null;
+
+function bgmLoopTick(){
+  if(bgmAudio && !bgmAudio.paused){
+    const dur = bgmAudio.duration;
+    if(dur && isFinite(dur) && dur > 0){
+      const remaining = dur - bgmAudio.currentTime;
+      if(remaining <= BGM_FADE_OUT_SEC){
+        bgmFadeState = 'fading-out';
+        const ratio = Math.max(0, remaining / BGM_FADE_OUT_SEC);
+        bgmAudio.volume = bgmTargetVolume * ratio;
+        if(remaining <= 0.05){
+          // 確保淡出已經完成（音量趨近 0）才重新播放，避免頭尾重疊
+          bgmAudio.pause();
+          bgmAudio.currentTime = 0;
+          bgmAudio.volume = 0;
+          bgmAudio.play().catch(()=>{});
+          bgmFadeState = 'fading-in';
+          bgmFadeInStartTime = performance.now();
+        }
+      } else if(bgmFadeState === 'fading-in'){
+        const elapsed = (performance.now() - bgmFadeInStartTime) / 1000;
+        const ratio = Math.min(1, elapsed / BGM_FADE_IN_SEC);
+        bgmAudio.volume = bgmTargetVolume * ratio;
+        if(ratio >= 1){ bgmFadeState = 'idle'; }
+      } else {
+        bgmFadeState = 'idle';
+        bgmAudio.volume = bgmTargetVolume;
+      }
+    }
+  }
+  bgmLoopRafId = requestAnimationFrame(bgmLoopTick);
+}
+
 function startBgm(){
   if(bgmStarted || !bgmAudio) return;
   bgmStarted = true;
+  bgmAudio.volume = bgmTargetVolume;
   bgmAudio.play().catch(()=>{ bgmStarted = false; });
+  if(bgmLoopRafId === null){ bgmLoopRafId = requestAnimationFrame(bgmLoopTick); }
 }
 function setBgmVolume(v){
   const vol = Math.max(0, Math.min(100, Number(v)));
-  if(bgmAudio) bgmAudio.volume = vol/100;
+  bgmTargetVolume = vol/100;
+  if(bgmFadeState === 'idle' && bgmAudio){ bgmAudio.volume = bgmTargetVolume; }
   const label = document.getElementById('bgmVolumeVal');
   if(label) label.textContent = vol;
 }

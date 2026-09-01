@@ -223,15 +223,21 @@
     display:none; flex-direction:column; align-items:center; gap:0.7cqw; z-index:5;
   }
   .dice-panel.show{display:flex;}
+  /* 骰子的「可點擊區域」跟「轉動動畫」分成兩層：外層固定不轉動、只負責承接點擊，
+     內層才套用旋轉/縮放動畫，避免轉到一半時（旋轉+縮放）點擊判定跟著動畫偏移，
+     導致投影/其他電腦上偶爾點到骰子邊緣卻沒反應的問題。 */
+  .dice-face-hit{
+    width:11cqw; height:11cqw; margin:0.4cqw auto; cursor:pointer;
+  }
   .dice-face{
-    width:11cqw; height:11cqw; border:0.28cqw solid var(--ink); border-radius:1.3cqw;
+    width:100%; height:100%; border:0.28cqw solid var(--ink); border-radius:1.3cqw;
     background:linear-gradient(150deg, #ffffff 0%, #f2f2ec 55%, #e2e2da 100%);
     box-shadow:
       inset 0 0.18cqw 0 rgba(255,255,255,.9),
       inset 0 -0.25cqw 0.4cqw rgba(0,0,0,.16),
       0 0.7cqw 1cqw rgba(0,0,0,.3);
     display:grid; grid-template-columns:repeat(3,1fr); grid-template-rows:repeat(3,1fr); padding:1.2cqw;
-    box-sizing:border-box; cursor:pointer; margin:0.4cqw auto;
+    box-sizing:border-box; cursor:pointer;
   }
   .dice-face.question{ display:flex; align-items:center; justify-content:center; font-size:4.6cqw; font-weight:900; color:var(--ink); }
   .dice-dot{width:100%; height:100%; display:flex; align-items:center; justify-content:center;}
@@ -388,7 +394,9 @@
     <div id="storyHotspots"></div>
     <button class="dice-toggle-btn" id="diceToggleBtn" onclick="playSfx('click');toggleDiceModal()" title="擲骰子" aria-label="擲骰子">🎲</button>
     <div class="dice-panel" id="diceModal">
-      <div class="dice-face question" id="diceFace" onclick="playSfx('click');clickDiceFace()">?</div>
+      <div class="dice-face-hit" onclick="playSfx('click');clickDiceFace()">
+        <div class="dice-face question" id="diceFace">?</div>
+      </div>
       <div class="dice-manual">
         <button onclick="playSfx('click');setDiceManual(1)">1</button>
         <button onclick="playSfx('click');setDiceManual(2)">2</button>
@@ -518,6 +526,17 @@ function renderDiceFace(){
 let diceModalOpen = false;
 function toggleDiceModal(){ diceModalOpen = !diceModalOpen; document.getElementById('diceModal').classList.toggle('show', diceModalOpen); }
 function closeDiceModal(){ document.getElementById('diceModal').classList.remove('show'); }
+// 開始自動瘋狂旋轉：進到新的分支頁面時呼叫一次，之後靠點擊骰子或按空白鍵停止
+function startDiceAutoSpin(){
+  if(diceTimer){ clearInterval(diceTimer); diceTimer = null; }
+  diceSpinning = true;
+  diceValue = 1 + Math.floor(Math.random()*6);
+  renderDiceFace();
+  diceTimer = setInterval(()=>{
+    diceValue = 1 + Math.floor(Math.random()*6);
+    renderDiceFace();
+  }, 55);
+}
 function clickDiceFace(){
   const face = document.getElementById('diceFace');
   if(diceSpinning){
@@ -529,11 +548,7 @@ function clickDiceFace(){
     face.classList.add('settle');
     setTimeout(()=>{ face.classList.remove('settle'); }, 320);
   } else {
-    diceSpinning = true;
-    diceTimer = setInterval(()=>{
-      diceValue = 1 + Math.floor(Math.random()*6);
-      renderDiceFace();
-    }, 55);
+    startDiceAutoSpin();
   }
 }
 function setDiceManual(n){
@@ -811,6 +826,7 @@ function showStoryPage(pageId){
     endBtn.style.display = 'flex';
     diceToggle.style.display = 'none';
     document.getElementById('diceModal').classList.remove('show');
+    resetDice(); // 進到結局頁時把骰子完全停掉，避免計時器留在背景空轉
   } else {
     const team = teams[currentTeamIndex];
     badge.style.display = 'flex';
@@ -822,7 +838,7 @@ function showStoryPage(pageId){
       return `<div class="story-hotspot" style="left:${h.left}cqw; top:${h.top}cqh; width:${h.width}cqw; height:${h.height}cqh;" onclick="${onclick}"></div>`;
     }).join('');
     diceToggle.style.display = 'flex';
-    resetDice();
+    startDiceAutoSpin();
     document.getElementById('diceModal').classList.toggle('show', diceModalOpen);
   }
 }

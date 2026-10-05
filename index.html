@@ -383,15 +383,22 @@
   #coverTutorialBtn{right:8.625%;}
   #coverFullscreenBtn{right:14.375%;}
   /* 教學視窗（老師操作說明） */
-  #tutorialModal .modal-box{position:relative; width:68cqw; max-height:94cqh; overflow-y:auto; padding:2cqw 3cqw 1.8cqw;}
-  #tutorialModal h2{font-size:2cqw; margin:0 0 0.3cqw;}
-  #tutorialModal .modal-sub{font-size:1.1cqw; margin:0 0 1.1cqw;}
-  .tut-list{list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:0.75cqw;}
-  .tut-list li{display:flex; gap:1.1cqw; align-items:flex-start; font-size:1.18cqw; line-height:1.5; color:var(--ink);}
-  .tut-num{flex:0 0 2.3cqw; width:2.3cqw; height:2.3cqw; border-radius:50%; background:var(--ink); color:#fff;
-    font-weight:900; font-size:1.2cqw; display:flex; align-items:center; justify-content:center; margin-top:0.1cqw;}
-  .tut-list b{font-weight:900;}
-  .tut-tip{margin:1cqw 0 0; padding:0.6cqw 1.1cqw; background:#f5f3ec; border-radius:0.8cqw; font-size:1.05cqw; line-height:1.5; color:#5d5d55;}
+  #tutorialModal .modal-box{position:relative; width:70cqw; max-height:95cqh; overflow:hidden; padding:2cqw 2.6cqw 1.8cqw; border-radius:2.2cqw;}
+  #tutorialModal h2{font-size:2.4cqw; margin:0; font-weight:900; text-align:center;}
+  .tut-tabs{display:flex; gap:0.8cqw; margin:1.3cqw 0 0.9cqw;}
+  .tut-tab{flex:1; padding:0.75cqw 0; border-radius:999px; border:0.18cqw solid var(--ink); background:#fff; font-family:inherit; font-weight:900; font-size:1.3cqw; cursor:pointer; color:var(--ink);}
+  .tut-tab.on{background:var(--ink); color:#fff;}
+  .tut-panel{display:none; flex-direction:column; gap:0.55cqw; min-height:33cqw;}
+  .tut-panel.on{display:flex;}
+  .tut-item{flex:1 1 auto; max-height:8.6cqw; display:flex; gap:1.4cqw; align-items:center; padding:0.5cqw 1.2cqw; border-radius:1.3cqw; background:#F6F4EE;}
+  .tut-ico{flex:0 0 9.5cqw; height:4.6cqw; display:flex; align-items:center; justify-content:center; font-size:3cqw; line-height:1;}
+  .tut-item h3{margin:0; font-size:1.5cqw; font-weight:900;}
+  .tut-item p{margin:0.15cqw 0 0; font-size:1.12cqw; line-height:1.5; color:#555;}
+  .tut-tip{margin-top:auto; padding:0.6cqw 1.1cqw; background:#FFF4C2; border-radius:0.9cqw; font-size:1.1cqw; line-height:1.5; color:#5d5d55;}
+  .tut-pill{background:var(--ink); color:#fff; border-radius:999px; padding:0.7cqw 1.7cqw; font-size:1.35cqw; font-weight:900; white-space:nowrap;}
+  .tut-next{background:#fff; border-radius:999px; padding:0.6cqw 1.3cqw; font-size:1.2cqw; font-weight:900; display:flex; align-items:center; gap:0.5cqw; white-space:nowrap; box-shadow:0 0 0 0.12cqw #e4e0d4;}
+  .tut-next svg{width:1.7cqw; height:1.7cqw;}
+  .tut-corn{width:4.1cqw; height:4.6cqw; border-radius:0.8cqw; background-size:100% auto; background-position:0 -0.75cqw; background-repeat:no-repeat; box-shadow:0 0 0 0.15cqw #F2C230;}
 
   /* 全螢幕時，16:9 畫面以外上下（或左右）多出來的空間改成黑色（2026-10-04）。
      兩條規則分開寫：一條不認得的 pseudo-class 會讓整條規則失效，所以標準版與 webkit 版不能合併 */
@@ -549,19 +556,15 @@
   <div class="modal-backdrop" id="tutorialModal" onclick="if(event.target===this)closeTutorial()">
     <div class="modal-box">
       <button class="modal-close-x" onclick="closeTutorial()" aria-label="關閉教學">✕</button>
-      <h2>怎麼玩？老師操作說明</h2>
-      <p class="modal-sub">第一次使用，照著下面的順序帶學生玩就可以了</p>
-      <ol class="tut-list">
-        <li><span class="tut-num">1</span><span><b>開始前先設定：</b>點右下角 ⚙️，設定組別數量（1～6 組）、初始點數（預設 10 點）、背景音樂音量，以及同一組是否可以重複選擇已經成功的食物。</span></li>
-        <li><span class="tut-num">2</span><span><b>選食物：</b>按 START 進入選擇頁，把食物卡上的名稱標籤拖進各組的格子，每組選一種。選食物要先扣點數（玉米 2、進口果汁 4、早餐店蛋餅 2、洋芋片零食 3），換食物會把原本的點數退回。點分數圓圈可調整點數。</span></li>
-        <li><span class="tut-num">3</span><span><b>開始行動：</b>每組都選好後按「開始行動！」，從第一組開始輪流進入劇情。</span></li>
-        <li><span class="tut-num">4</span><span><b>擲骰子決定命運：</b>點左下角 🎲 打開骰子，點骰子（或按空白鍵）讓它停下來，看點數對應畫面上的哪一個選項，再點該選項進入下一頁。</span></li>
-        <li><span class="tut-num">5</span><span><b>走到結局：</b>「剩食解決」該組加 1 分，「成為廚餘」不加分。按「點擊換下一組」換下一組，全部組別走完會回到選擇頁，開始下一輪。</span></li>
-        <li><span class="tut-num">6</span><span><b>按錯了：</b>劇情頁右下角的 ⏪ 可以回到上一步（只能在同一組內退，如果退回的是結局頁，加分和歷史紀錄也會一起撤銷）。</span></li>
-        <li><span class="tut-num">7</span><span><b>結算成績：</b>在選擇頁點右上角 🏆 進入最終成績結算，點畫面任何地方可以看每輪歷史紀錄，左上角 ↩️ 回到選擇頁繼續玩。</span></li>
-        <li><span class="tut-num">8</span><span><b>全螢幕：</b>封面點 🖥️ 進入全螢幕；進入遊戲之後，隨時按鍵盤 <b>F</b> 鍵就能進入或離開全螢幕（封面頁請點 🖥️）。投影上課前建議先打開。</span></li>
-      </ol>
-      <p class="tut-tip">小提醒：滑鼠移到圖示上會出現文字說明。</p>
+      <h2>教師操作指南</h2>
+      <div class="tut-tabs">
+        <button class="tut-tab on" onclick="tutTab(0)">① 開始前</button>
+        <button class="tut-tab" onclick="tutTab(1)">② 遊戲中</button>
+        <button class="tut-tab" onclick="tutTab(2)">③ 結束後</button>
+      </div>
+      <div class="tut-panel on"><div class="tut-item"><div class="tut-ico">⚙️</div><div><h3>後台設定</h3><p>封面或選擇頁右上角的 ⚙️：設定組別數量（1～6 組）、初始點數（預設 10 點）、音量，以及同一組成功後是否可重複選同一種食物。</p></div></div><div class="tut-item"><div class="tut-ico">🖥️</div><div><h3>全螢幕</h3><p>封面點 🖥️ 進入全螢幕；進入遊戲後隨時按鍵盤 F 鍵切換，投影給學生看更清楚。</p></div></div><div class="tut-item"><div class="tut-ico"><span class="tut-pill">START</span></div><div><h3>開始遊戲</h3><p>設定好就按封面的 START，進入選食物頁。</p></div></div><div class="tut-tip">小提醒：滑鼠移到各個圖示上，會出現小小的文字說明。</div></div>
+      <div class="tut-panel"><div class="tut-item"><div class="tut-ico"><span class="tut-corn" id="tutCorn"></span></div><div><h3>選食物</h3><p>把食物卡上的名稱標籤拖進各組的格子。選食物要先扣點：玉米 2、進口果汁 4、早餐店蛋餅 2、洋芋片零食 3。</p></div></div><div class="tut-item"><div class="tut-ico"><span class="tut-pill">開始行動！</span></div><div><h3>開始行動</h3><p>每組都選好後按這顆黑色按鈕，從第一組開始輪流進入劇情。</p></div></div><div class="tut-item"><div class="tut-ico">🎲</div><div><h3>擲骰子</h3><p>點左下角 🎲，再點骰子（或按空白鍵）讓它停下，依點數點選畫面上對應的選項。</p></div></div><div class="tut-item"><div class="tut-ico"><span class="tut-next"><svg viewBox="0 0 100 100" aria-hidden="true"><polygon points="8,32 52,32 52,10 92,50 52,90 52,68 8,68" fill="#FFC700" stroke="#1A1A1A" stroke-width="6" stroke-linejoin="round"/></svg>換下一組</span></div><div><h3>走到結局</h3><p>「剩食解決」該組 +1 分，「成為廚餘」不加分。按「點擊換下一組」；全部組別走完會回到選擇頁，開始下一輪。</p></div></div><div class="tut-item"><div class="tut-ico">⏪</div><div><h3>按錯了</h3><p>劇情頁右下角點 ⏪ 回到上一步（限同一組內；退回結局頁時，加分與歷史紀錄會一起撤銷）。</p></div></div></div>
+      <div class="tut-panel"><div class="tut-item"><div class="tut-ico">🏆</div><div><h3>成績結算</h3><p>選擇頁右上角的 🏆 看最終名次，點畫面任何地方可看每一輪的歷史紀錄。</p></div></div><div class="tut-item"><div class="tut-ico">↩️</div><div><h3>回到選擇頁</h3><p>成績頁左上角的 ↩️ 可以回到選擇頁，繼續下一輪。</p></div></div><div class="tut-item"><div class="tut-ico">🏠</div><div><h3>回首頁重新開始</h3><p>選擇頁左上角的 🏠，確認後會清空這一場的分數與歷史紀錄，回到封面（設定會保留）。</p></div></div><div class="tut-tip">小提醒：回首頁只會清空分數和歷史紀錄，組數、點數、音量等設定都會保留。</div></div>
       <button class="save-btn" onclick="closeTutorial()">知道了</button>
     </div>
   </div>
@@ -1444,7 +1447,17 @@ fitStage();
 })();
 
 // 教學視窗（封面 📖）
-function openTutorial(){ document.getElementById('tutorialModal').classList.add('show'); }
+function tutTab(n){
+  const m=document.getElementById('tutorialModal');
+  m.querySelectorAll('.tut-tab').forEach((e,k)=>e.classList.toggle('on',k===n));
+  m.querySelectorAll('.tut-panel').forEach((e,k)=>e.classList.toggle('on',k===n));
+}
+function openTutorial(){
+  const c=document.querySelector('.card-corn'), z=document.getElementById('tutCorn');
+  if(c && z && !z.style.backgroundImage) z.style.backgroundImage='url("'+c.src+'")';
+  tutTab(0);
+  document.getElementById('tutorialModal').classList.add('show');
+}
 function closeTutorial(){ document.getElementById('tutorialModal').classList.remove('show'); }
 
 // 全螢幕（封面 🖥️）：點一下進入，再點一下離開；瀏覽器不支援全螢幕（例如 iPhone）就把按鈕藏起來
